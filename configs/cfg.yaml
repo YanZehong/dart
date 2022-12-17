@@ -1,0 +1,49 @@
+# @package _global_
+defaults:
+  - _self_
+  - model: bert_truncation # bert_truncation, big_bird, dart, dart_base
+  - data: persent # trip_advisor, beer_advocate, persent
+  - logdir: default
+  - override hydra/hydra_logging: colorlog
+  - override hydra/job_logging: colorlog
+
+train:
+  num_epoch: 5
+  batch_size: 16
+  num_workers: 8
+  prefetch_factor: 4
+
+  # optimizer related
+  lr: 3.0e-05
+  scheduler_factor: 0.8
+  scheduler_patience: 4
+
+  patience: 16 # for early stop
+  clip_grad: 0.5
+
+dev:
+  batch_size: 16
+  num_workers: 8
+  prefetch_factor: 4
+
+test:
+  batch_size: 1
+  num_workers: 0
+  prefetch_factor: 2
+  threshold: 0.5
+  monitor: val/loss
+
+root_dir: /home/zehong/DART # path to root directory
+data_dir: ${root_dir}/dataset/${data.name}
+output_dir: ${hydra:run.dir}
+
+task: DASC
+seed: 42
+gpu: null
+debug: null
+overfit_batches: 0
+val_check_interval: 0.5
+num_sanity_val_steps: 2
+limit_train_batches: null
+limit_val_batches: null
+deterministic: true

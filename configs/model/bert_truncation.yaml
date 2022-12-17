@@ -1,0 +1,8 @@
+arch: bert_truncation
+
+backbone: bert-base-uncased
+
+num_class: 2
+dropout: 0.1
+
+collator: doc_collator
