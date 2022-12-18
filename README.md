@@ -1,7 +1,7 @@
 # DART: A Hierarchical Transformer for Document-level Aspect-based Sentiment Classification
 
 <div align="center">
-## DART
+<h1>DART</h1>
 
 [![Python Versions](https://img.shields.io/badge/python-3.10%20%7C%203.10-blue)](https://www.python.org/downloads/)
 [![pytorch](https://img.shields.io/badge/PyTorch_1.13+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
