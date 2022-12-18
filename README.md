@@ -1,14 +1,21 @@
 # DART: A Hierarchical Transformer for Document-level Aspect-based Sentiment Classification
+
+<div align="center">
+## DART
+
 [![Python Versions](https://img.shields.io/badge/python-3.10%20%7C%203.10-blue)](https://www.python.org/downloads/)
 [![pytorch](https://img.shields.io/badge/PyTorch_1.13+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
 [![Lightning](https://img.shields.io/badge/-Lightning_1.7+-792ee5?logo=pytorchlightning&logoColor=white)](https://pytorchlightning.ai/)
 [![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg?labelColor=gray)](https://github.com/YanZehong/dart#license)
+</div>
 
 This work introduces a hierarchical Transformer-based architecture called **DART** (**D**ocument-level **A**spect-based **R**epresentation from **T**ransformers) which effectively encodes information at three levels, namely token, sentence, and document level. DART employs an attentive aggregation mechanism to learn aspect-specific document representation for sentiment classification.
 
 ## Table of Contents
 - [Project Structure](#project-structure)
-- [Project Set Up](#project-setup)
+- [Project Set Up](#project-set-up)
+- [FAQ](#faq)
+- [Citation](#citation)
 
 ## Project Structure
 The directory structure of this project is:
@@ -93,7 +100,7 @@ All code *and* models are released under the Apache 2.0 license. See the
 
 ## Citation
 
-For now, cite [the paper link](https://github.com/YanZehong/dart):
+If you find this work useful, please cite as following:
 
 ```
 @article{2023dart,
@@ -106,8 +113,6 @@ For now, cite [the paper link](https://github.com/YanZehong/dart):
 
 If we submit the paper to a conference or journal, we will update the BibTeX.
 
-## Acknowledgement
-We are grateful to NUS CS5242 for giving us such a valuable experience.  
 
 ## Contact information
 
