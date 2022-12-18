@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Python Versions](https://img.shields.io/badge/python-3.10%20%7C%203.10-blue)](https://www.python.org/downloads/)
+[![Python Versions](https://img.shields.io/badge/-Python_3.7_%7C_3.8_%7C_3.9_%7C_3.10-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![pytorch](https://img.shields.io/badge/PyTorch_1.13+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
 [![Lightning](https://img.shields.io/badge/-Lightning_1.7+-792ee5?logo=pytorchlightning&logoColor=white)](https://pytorchlightning.ai/)
 [![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg?labelColor=gray)](https://github.com/YanZehong/dart#license)
