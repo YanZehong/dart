@@ -12,7 +12,7 @@ This work introduces a hierarchical Transformer-based architecture called **DART
 
 ## Table of Contents
 - [Project Structure](#project-structure)
-- [Project Set Up](#project-set-up)
+- [Project Set Up](#quickstart)
 - [FAQ](#faq)
 - [Citation](#citation)
 
@@ -38,9 +38,9 @@ The directory structure of this project is:
 └── README.md
 ``` 
 
-## Project Set Up
+## Quickstart 🚀
 
-### 🚀Quickstart
+### Installation
 Install dependencies.
 
 ```
@@ -64,30 +64,87 @@ pip install -r requirements.txt
 
 
 ### Fine-tuning with DART
-
-You can override any parameter from command line like this
+Train model with chosen experiment configuration from [configs/experiment/](configs/experiment/)
 ```bash
-python run.py train.num_epochs=10 train.batch_size=32
+python run.py gpu=1 experiment=tripadvisor_dart.yaml
 ```
 
-### Train on GPU and multi-GPU
+Train model with default configuration
 ```bash
 # train on 1 GPU
 python run.py gpu=1
 
 # train with DDP (Distributed Data Parallel) (3 GPUs)
 python run.py gpu=[0,1,2]
-
 ```
-
 > **Warning**: Currently there are problems with DDP mode, read [this issue](https://github.com/ashleve/lightning-hydra-template/issues/393) to learn more.
 
+You can override any parameter from command line like this
+```bash
+python run.py train.num_epochs=10 train.batch_size=32
+```
 
-### Train model with chosen experiment configuration from configs/experiment/
+<details>
+<summary><b>Use Miniconda for GPU environments</b></summary>
 
-### Test a checkpoint
+Use miniconda for your python environments (it's usually unnecessary to install full anaconda environment, miniconda should be enough).
+It makes it easier to install some dependencies, like cudatoolkit for GPU support. It also allows you to access your environments globally.
 
+Example installation:
 
+```bash
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+```
+
+Create new conda environment:
+
+```bash
+conda create -n myenv python=3.10
+conda activate myenv
+```
+
+</details>
+
+<details>
+<summary><b>Use torchmetrics</b></summary>
+
+Use official [torchmetrics](https://github.com/PytorchLightning/metrics) library to ensure proper calculation of metrics. This is especially important for multi-GPU training!
+
+For example, instead of calculating accuracy by yourself, you should use the provided `Accuracy` class like this:
+
+```python
+from torchmetrics import Accuracy
+
+class ModelModel(LightningModule):
+    def __init__(self)
+        self.train_acc = Accuracy()
+        self.val_acc = Accuracy()
+
+    def training_step(self, batch, batch_idx):
+        ...
+        acc = self.train_acc(predictions, targets)
+        self.log("train/acc", acc)
+        ...
+
+    def validation_step(self, batch, batch_idx):
+        ...
+        acc = self.val_acc(predictions, targets)
+        self.log("val/acc", acc)
+        ...
+```
+
+Make sure to use different metric instance for each step to ensure proper value reduction over all GPU processes.
+
+Torchmetrics provides metrics for most use cases, like F1 score or confusion matrix. Read [documentation](https://torchmetrics.readthedocs.io/en/latest/#more-reading) for more.
+
+</details>
+
+<details>
+<summary><b>Follow PyTorch Lightning style guide</b></summary>
+
+The style guide is available [here](https://pytorch-lightning.readthedocs.io/en/latest/starter/style_guide.html).<br>
+</details>
 
 
 ## FAQ
@@ -96,6 +153,9 @@ python run.py gpu=[0,1,2]
 
 All code *and* models are released under the Apache 2.0 license. See the
 `LICENSE` file for more information.
+
+#### I am getting out-of-memory errors, what is wrong?
+All experiments in the paper were fine-tuned on a GPU/GPUs, which has 40GB of device RAM. Therefore, when using a GPU with 12GB - 16GB of RAM, you are likely to encounter out-of-memory issues if you use the same hyperparameters described in the paper.
 
 ## Citation
 
@@ -117,7 +177,7 @@ If we submit the paper to a conference or journal, we will update the BibTeX.
 
 For help or issues using DART, please submit a GitHub issue.
 
-For personal communication related to DART, please contact Yan Zehong(`yanzehong1101@outlook.com`). 
+For personal communication related to DART, please contact me. 
 <table>
   <tr>
     <td align="center"><a href="https://github.com/YanZehong"><img src="https://github.com/YanZehong.png" width="100px;" alt=""/><br /><sub><b>Yan Zehong</b></sub></a><br /><a href="https://github.com/YanZehong/CS5242-ABSC" title="Code">💻</a></td>
