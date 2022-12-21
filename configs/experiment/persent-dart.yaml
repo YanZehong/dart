@@ -13,7 +13,7 @@ train:
   prefetch_factor: 4
 
   # optimizer related
-  lr: 5.0e-05
+  lr: 3.0e-05
   scheduler_factor: 0.8
   scheduler_patience: 2
 
@@ -34,3 +34,4 @@ test:
 
 val_check_interval: 0.25
 gpu: 0
+seed: 30

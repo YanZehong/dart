@@ -62,8 +62,11 @@ def main(conf):
         best_ckpt_path = callbacks[2].best_model_path
         torch.distributed.destroy_process_group()
         if trainer.is_global_zero:
-            trainer = pl.Trainer(accelerator="gpu", devices=conf.gpu[0])
-            trainer.test(model=module, datamodule=datamodule, ckpt_path=best_ckpt_path)
+            print(f"################ test on {best_ckpt_path}")
+            module = module.load_from_checkpoint(best_ckpt_path)
+            trainer = pl.Trainer(accelerator="gpu", devices=1)
+            # trainer = pl.Trainer() # test on cpu
+            trainer.test(model=module, datamodule=datamodule)
     else:
         trainer.test(model=module, datamodule=datamodule, ckpt_path="best")
 

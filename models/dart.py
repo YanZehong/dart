@@ -23,14 +23,14 @@ class HierarchicalDART(nn.Module):
             self.sent_encoder = BigBirdModel.from_pretrained(self.conf.model.backbone)
         
         if self.conf.data.name == "trip_advisor":
-            print("########## Loading aspect embeddings of TripAdvisor")
-            emb_name = "big_bird_ta_aspects_" + str(interact_encoder_conf.d_model) + "_emb.dat"
+            print("################ Loading aspect embeddings of TripAdvisor")
+            emb_name = "ta_aspects_" + str(interact_encoder_conf.d_model) + "_emb.dat"
         elif self.conf.data.name == "beer_advocate":
-            print("########## Loading aspect embeddings of BeerAdvocate")
-            emb_name = "big_bird_ba_aspects_" + str(interact_encoder_conf.d_model) + "_emb.dat"
+            print("################ Loading aspect embeddings of BeerAdvocate")
+            emb_name = "ba_aspects_" + str(interact_encoder_conf.d_model) + "_emb.dat"
         elif self.conf.data.name == "persent":
-            print("########## Loading aspect embeddings of Persent")
-            emb_name = "big_bird_ps_6aspects_" + str(interact_encoder_conf.d_model) + "_emb.dat"
+            print("################ Loading aspect embeddings of PerSenT")
+            emb_name = "ps_6aspects_" + str(interact_encoder_conf.d_model) + "_emb.dat"
         
         with open (self.conf.root_dir + "/dataset/aspect_embs/" + emb_name, "rb") as f:
             self.fixed_aspect_emb = pickle.load(f)
