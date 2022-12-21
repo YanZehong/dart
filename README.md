@@ -12,7 +12,7 @@ This work introduces a hierarchical Transformer-based architecture called **DART
 
 ## Table of Contents
 - [Project Structure](#project-structure)
-- [Quickstart](#quickstart-🚀)
+- [Quickstart](#quickstart-)
   * [Installation](#installation)
   * [Fine-tuning with DART](#fine-tuning-with-dart)
 - [Introduction](#introduction)
@@ -204,6 +204,6 @@ For help or issues using DART, please submit a GitHub issue.
 For personal communication related to DART, please contact me. 
 <table>
   <tr>
-    <td align="center"><a href="https://github.com/YanZehong"><img src="https://github.com/YanZehong.png" width="100px;" alt=""/><br /><sub><b>Yan Zehong</b></sub></a><br /><a href="https://github.com/YanZehong/CS5242-ABSC" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/YanZehong"><img src="https://github.com/YanZehong.png" width="100px;" alt=""/><br /><sub><b>Yan Zehong</b></sub></a><br /><a href="https://github.com/YanZehong/dart" title="Code">💻</a></td>
   </tr>
 </table>

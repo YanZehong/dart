@@ -1,0 +1,22 @@
+arch: dart
+
+backbone: google/bigbird-roberta-base # bert-base-uncased, google/bigbird-roberta-base
+
+interact_encoder:
+  d_model: 768
+  num_head: 12
+  ff_dim: 3072
+  num_layers: 4
+  dropout: 0.1
+
+refine_encoder:
+  d_model: 768
+  num_head: 12
+  ff_dim: 3072
+  num_layers: 2
+  dropout: 0.1
+
+num_class: 2
+dropout: 0.1
+
+collator: sent_collator

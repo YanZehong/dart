@@ -63,7 +63,6 @@ def main(conf):
         torch.distributed.destroy_process_group()
         if trainer.is_global_zero:
             trainer = pl.Trainer(accelerator="gpu", devices=conf.gpu[0])
-            # model = MyModel.load_from_checkpoint(best_ckpt_path)
             trainer.test(model=module, datamodule=datamodule, ckpt_path=best_ckpt_path)
     else:
         trainer.test(model=module, datamodule=datamodule, ckpt_path="best")

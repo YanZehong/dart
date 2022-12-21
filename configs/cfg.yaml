@@ -1,7 +1,7 @@
 # @package _global_
 defaults:
   - _self_
-  - model: bert_truncation # bert_truncation, big_bird, dart, dart_base
+  - model: dart # bert_truncation, big_bird, longformer, dart
   - data: persent # trip_advisor, beer_advocate, persent
   - logdir: default
   - experiment: null

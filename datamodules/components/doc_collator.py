@@ -40,7 +40,6 @@ class DocumentCollator:
             "token_type_ids": token_type_ids,
             "aspect_ids": aspect_ids,
             "label_ids": label_ids,
-            # "raw": batch
         }
 
         return output
