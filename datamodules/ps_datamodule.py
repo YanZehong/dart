@@ -21,15 +21,17 @@ class PersentDatamodule(pl.LightningDataModule):
         self.keep_auxiliary = True
 
         if conf.model.arch in ["bert_truncation", "big_bird"]:
-            self.file_path = '/home/zehong/DART/outputs/corpus_' + str(self.conf.data.name) + '_' + str(conf.model.arch) + '_' + str(self.conf.data.max_num_seq) + '.json'
+            self.file_path = '/home/zehong/DART/outputs/corpus_' + str(
+                self.conf.data.name) + '_' + str(conf.model.arch) + '_' + str(
+                    self.conf.data.max_num_seq) + '.pickle'
             if not os.path.exists(self.file_path):
                 self.convert_data_to_features()
                 self.process()
             else:
-                with open(self.file_path) as f:
-                    self.packed_data = json.load(f)
+                with open(self.file_path, 'rb') as f:
+                    self.packed_data = pickle.load(f)
                 
-        elif conf.model.arch in ["roberta_truncation", "longformer"]:
+        elif conf.model.arch in ["longformer"]:
             self.file_path = '/home/zehong/DART/outputs/corpus_' + str(
                 self.conf.data.name) + '_' + str(conf.model.arch) + '_' + str(
                     self.conf.data.max_num_seq) + '.pickle'
@@ -40,14 +42,16 @@ class PersentDatamodule(pl.LightningDataModule):
                 with open(self.file_path, 'rb') as f:
                     self.packed_data = pickle.load(f)
 
-        elif conf.model.arch in ["dart", "dart_base"]:
-            self.file_path = '/home/zehong/DART/outputs/corpus_' + str(self.conf.data.name) + '_' + str(self.conf.data.max_num_sent) + '_' + str(self.conf.data.max_num_token_per_sent) + '.json'
+        elif conf.model.arch in ["dart"]:
+            self.file_path = '/home/zehong/DART/outputs/corpus_' + str(
+                self.conf.data.name) + '_' + str(self.conf.data.max_num_sent) + '_' + str(
+                    self.conf.data.max_num_token_per_sent) + '.pickle'
             if not os.path.exists(self.file_path):
                 self.convert_data_to_features()
                 self.sentence_process()
             else:
-                with open(self.file_path) as f:
-                    self.packed_data = json.load(f)
+                with open(self.file_path, 'rb') as f:
+                    self.packed_data = pickle.load(f)
                 
     
     def convert_data_to_features(self):
@@ -143,8 +147,8 @@ class PersentDatamodule(pl.LightningDataModule):
                 feature_list += [x]
             self.packed_data[mode] = feature_list
             
-        with open(self.file_path, "w") as fw:
-            json.dump(self.packed_data, fw, indent=4)
+        with open(self.file_path, "wb") as f:
+            pickle.dump(self.packed_data, f)
     
     def process_for_roberta(self):
         '''
@@ -207,7 +211,6 @@ class PersentDatamodule(pl.LightningDataModule):
 
             for x in raw_data:
                 sentences = eval(x["doc_sentences"])
-                # sentences = eval(x["doc_paragraphs"]) # process paragraph chunks
                 doc_aspect = x["doc_aspect"]
                 aspect_label = persent_label_map(x["doc_aspect_label"])
                 
@@ -254,8 +257,8 @@ class PersentDatamodule(pl.LightningDataModule):
                 })
                 feature_list += [x]
             self.packed_data[mode] = feature_list
-        with open(self.file_path, "w") as fw:
-            json.dump(self.packed_data, fw, indent=4)
+        with open(self.file_path, "wb") as f:
+            pickle.dump(self.packed_data, f)
 
     def train_dataloader(self):
         collate_fn = build_collator(conf=self.conf)

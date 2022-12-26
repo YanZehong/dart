@@ -1,6 +1,4 @@
-# logs/runs/
 _test/
-# outputs/
 nohup.out
 
 # Byte-compiled / optimized / DLL files

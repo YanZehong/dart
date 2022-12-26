@@ -1,0 +1,8 @@
+name: beer_advocate
+
+max_num_seq: 512
+
+max_num_sent: 25
+max_num_token_per_sent: 64
+
+num_aspect: 4

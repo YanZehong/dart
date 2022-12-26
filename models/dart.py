@@ -9,7 +9,9 @@ import pickle
 
 @register_model("dart")
 class HierarchicalDART(nn.Module):
-
+    """
+        The DART model for document-level aspect-based sentiment classification.
+    """
     def __init__(self, conf) -> None:
         super().__init__()
 
@@ -74,49 +76,62 @@ class HierarchicalDART(nn.Module):
     
     def forward(self, input_ids, attention_mask, token_type_ids, sent_pos_ids, aspect_ids, **kwargs):
         """
-        input sentence format: [CLS] <aspect> [SEP] <sent>
-        input_ids: [bsz, num_sent, num_token]
-        attention_mask: [bsz, num_sent, num_token]
-        token_type_ids: [bsz, num_sent, num_token]
-        sent_pos_ids: [bsz, num_sent] (0 for padding)
-        aspect_ids: [bsz, ]
+        Input format: 
+            [CLS] <aspect> [SEP] <doc>
+        Args:
+            input_ids (batch_size, num_sent, num_token):
+                Indices of input sequence tokens in the vocabulary.
+            attention_mask (batch_size, num_sent, num_token):
+                Mask to avoid performing attention on padding token indices. Mask values selected in [0, 1]:
+                - 1 for tokens that are **not masked**,
+                - 0 for tokens that are **masked**.
+            token_type_ids (batch_size, num_sent, num_token):
+                Segment token indices to indicate first and second portions of the inputs. Indices are selected in [0, 1]:
+                - 0 corresponds to a *sentence A* token,
+                - 1 corresponds to a *sentence B* token.
+            sent_pos_ids (batch_size, num_sent):
+                Positional encodings to the input embeddings at the interaction block, in order for the transformer to make 
+                full use of the order of sentences in a document. (0 for padding)
+            aspect_ids (batch_size, ):
+                Indices indicate the aspect of the corresponding sentiment label.
         """
     
         bsz, num_sent, num_token = input_ids.shape
-        sent_mask = torch.clone(attention_mask[:, :, 0]).detach() # [bsz, num_sent]
+        sent_mask = torch.clone(attention_mask[:, :, 0]).detach() 
 
-        """1st: sentence encoder"""
-        flatten_input_ids = input_ids.reshape((bsz * num_sent, num_token)) # [bsz * num_sent, num_token]
-        flatten_attention_mask = attention_mask.reshape((bsz * num_sent, num_token)) # [bsz * num_sent, num_token]
+        """1st: Sentence Encoding Block"""
+        flatten_input_ids = input_ids.reshape((bsz * num_sent, num_token))
+        flatten_attention_mask = attention_mask.reshape((bsz * num_sent, num_token)) 
         flatten_attention_mask[:, 0] = True
-        flatten_token_type_ids = token_type_ids.reshape((bsz * num_sent, num_token)) # [bsz * num_sent, num_token]
+        flatten_token_type_ids = token_type_ids.reshape((bsz * num_sent, num_token)) 
         
         sent_embs = self.sent_encoder(input_ids=flatten_input_ids,
                             attention_mask=flatten_attention_mask,
-                            token_type_ids=flatten_token_type_ids).last_hidden_state # [bsz * num_sent, num_token, hidden_size]
+                            token_type_ids=flatten_token_type_ids).last_hidden_state 
         
-        cls_embs = sent_embs[:, 0, :]  # [bsz * num_sent, hidden_size]
+        cls_embs = sent_embs[:, 0, :]  
 
-        """2nd: interaction"""
-        pos_emb = self.pos_emb_layer(sent_pos_ids) # [bsz, num_sent, hidden_size]
-        cls_embs = cls_embs.reshape((bsz, num_sent, -1)) + pos_emb # [bsz, num_sent, hidden_size]
-        cls_embs = self.interact_encoder(src=cls_embs, src_key_padding_mask=~sent_mask) # [bsz, num_sent, hidden_size]
+        """2nd: Global Context Interaction Block"""
+        pos_emb = self.pos_emb_layer(sent_pos_ids) 
+        cls_embs = cls_embs.reshape((bsz, num_sent, -1)) + pos_emb 
+        cls_embs = self.interact_encoder(src=cls_embs, src_key_padding_mask=~sent_mask) 
         
-        """3rd: refinement"""
+        
         sent_embs = torch.cat(
             [cls_embs.reshape((bsz * num_sent, 1, -1)), sent_embs[:, 1:, :]],
-            dim=1)  # [bsz * num_sent, num_token, hidden_size_2]
+            dim=1) 
 
         sent_embs = self.refine_encoder(
             sent_embs,
             src_key_padding_mask=~flatten_attention_mask,
-        ).reshape((bsz, num_sent, num_token, -1)) # [bsz, num_sent, num_token, hidden_size]
+        ).reshape((bsz, num_sent, num_token, -1)) 
 
-        """4th: modified aspect-specific aggregation"""
-        local_embs = self.local_pooling(sent_embs, attention_mask) # [bsz, num_sent, hidden_size]
+        """3rd: Aspect Aggregation Block"""
+        local_embs = self.local_pooling(sent_embs, attention_mask) 
         aspect_emb = self.aspect_emb_layer(aspect_ids)
-        doc_emb = self.global_pooling(local_embs, sent_mask, aspect_emb) # [bsz, hidden_size]
+        doc_emb = self.global_pooling(local_embs, sent_mask, aspect_emb) 
 
+        """4th: MLP"""
         logits = self.clf(doc_emb)
         
         return {"logits": logits}

@@ -1,0 +1,8 @@
+arch: longformer
+
+backbone: allenai/longformer-base-4096
+
+num_class: 2
+dropout: 0.1
+
+collator: doc_collator_for_roberta
