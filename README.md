@@ -3,7 +3,7 @@
 <div align="center">
 
 [![Python Versions](https://img.shields.io/badge/-Python_3.7_%7C_3.8_%7C_3.9_%7C_3.10-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
-[![pytorch](https://img.shields.io/badge/PyTorch_1.13+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
+[![pytorch](https://img.shields.io/badge/PyTorch_1.12+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
 [![Lightning](https://img.shields.io/badge/-Lightning_1.7+-792ee5?logo=pytorchlightning&logoColor=white)](https://pytorchlightning.ai/)
 [![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg?labelColor=gray)](https://github.com/YanZehong/dart#license)
 </div>
@@ -81,11 +81,11 @@ python run.py gpu=1
 # train with DDP (Distributed Data Parallel) (3 GPUs)
 python run.py gpu=[0,1,2]
 ```
-> **Warning**: Currently there are problems with DDP mode, read [this issue](https://github.com/ashleve/lightning-hydra-template/issues/393) to learn more.
+> **Warning**: Currently there are problems with DDP mode, read [this issue](https://github.com/Lightning-AI/lightning/issues/8375) to learn more.
 
 You can override any parameter from command line like this
 ```bash
-python run.py train.num_epochs=10 train.batch_size=32
+python run.py gpu=3 train.num_epochs=10 train.batch_size=32
 ```
 
 <details>
@@ -179,7 +179,19 @@ All code *and* models are released under the Apache 2.0 license. See the
 `LICENSE` file for more information.
 
 #### I am getting out-of-memory errors, what is wrong?
-All experiments in the paper were fine-tuned on a GPU/GPUs, which has 40GB of device RAM. Therefore, when using a GPU with 12GB - 16GB of RAM, you are likely to encounter out-of-memory issues if you use the same hyperparameters described in the paper.
+All experiments in the paper were fine-tuned on a GPU/GPUs, which has 40GB of device RAM. Therefore, when using a GPU with 12GB - 16GB of RAM, you are likely to encounter out-of-memory issues if you use the same hyperparameters described in the paper. Additionally, different models require different amount of memory. Available memory also depends on the accelerator configuration (both type and count).
+
+The factors that affect memory usage are:  
+-  **`data.max_num_seq`**: You can fine-tune with a shorter max sequence length to save
+    substantial memory. 
+
+-   **`train.batch_size`**: The memory usage is also directly proportional to
+    the batch size. You could decrease the `train.batch_size=8` (and decrease `train.lr`
+    accordingly) if you encounter an out-of-memory error.
+
+-   **Model backbone type, `base` vs. `large`**: The `large` model
+    requires significantly more memory than `base`.
+
 
 ## Citation
 
