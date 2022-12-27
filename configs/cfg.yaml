@@ -48,3 +48,5 @@ num_sanity_val_steps: 2
 limit_train_batches: null
 limit_val_batches: null
 deterministic: true
+# passing checkpoint path is necessary for evaluation
+ckpt_path: null

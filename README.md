@@ -88,6 +88,18 @@ You can override any parameter from command line like this
 python run.py gpu=3 train.num_epochs=10 train.batch_size=32
 ```
 
+### Evaluate checkpoint on test dataset  
+```bash
+# evaluate on 1 GPU
+python eval.py gpu=1 ckpt_path='/path/to/ckpt/name.ckpt'
+
+# evaluate on cpu
+python eval.py ckpt_path='/path/to/ckpt/name.ckpt'
+```
+
+if you got "mismatched input '=' expecting <EOF>", use the escape character '\=' to fix this problem. Or you can specify
+the value of `ckpt_path` in [configs/cfg.yaml](configs/cfg.yaml).
+
 <details>
 <summary><b>Use Miniconda for GPU environments</b></summary>
 
