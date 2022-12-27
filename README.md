@@ -97,8 +97,7 @@ python eval.py gpu=1 ckpt_path='/path/to/ckpt/name.ckpt'
 python eval.py ckpt_path='/path/to/ckpt/name.ckpt'
 ```
 
-if you got "mismatched input '=' expecting <EOF>", use the escape character '\=' to fix this problem. Or you can specify
-the value of `ckpt_path` in [configs/cfg.yaml](configs/cfg.yaml).
+> **Note**: If you get an error `mismatched input '=' expecting <EOF>`, use the escape character '\=' to fix this problem. Or you can specify the value of `ckpt_path` in [configs/cfg.yaml](configs/cfg.yaml).
 
 <details>
 <summary><b>Use Miniconda for GPU environments</b></summary>
@@ -225,7 +224,7 @@ If we submit the paper to a conference or journal, we will update the BibTeX.
 
 For help or issues using DART, please submit a GitHub issue.
 
-For personal communication related to DART, please contact me. 
+For personal communication related to DART, please contact [me](mailto:yanzehong1101@outlook.com).
 <table>
   <tr>
     <td align="center"><a href="https://github.com/YanZehong"><img src="https://github.com/YanZehong.png" width="100px;" alt=""/><br /><sub><b>Yan Zehong</b></sub></a><br /><a href="https://github.com/YanZehong/dart" title="Code">💻</a></td>
