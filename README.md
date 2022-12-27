@@ -89,9 +89,21 @@ python run.py gpu=3 train.num_epochs=10 train.batch_size=32
 ```
 
 ### Evaluate checkpoint on test dataset  
+
+You can find fine-tuned checkpoints in our [Google Cloud Storage Bucket](https://console.cloud.google.com/welcome?project=river-interface-345315).  
+We recommend using the following checkpoints:  
+|  Dataset   |                                   Fine-tuned checkpoint                                   |   Size   | Accuracy | 
+| :------- | :----------------------------------------------------------------------------------------- | :-------: |:----------------: |
+|TripAdvisor | epoch=3-step=8694.ckpt | 2.0G | 86.36% |
+|Persent | epoch=0-step=88.ckpt | 2.0G | 83.40% |
+
 ```bash
+# Optionally, you can download them using gsutil as
+gsutil cp -r gs://dart/ dart/logs/runs/
+# Next, unzip it to some directory `ckpt_path`,
+# And then specify the corresponding dataset (DATA_NAME: trip_advisor, beer_advocate, persent).
 # evaluate on 1 GPU
-python eval.py gpu=1 ckpt_path='/path/to/ckpt/name.ckpt'
+python eval.py gpu=1 data=DATA_NAME ckpt_path='/path/to/ckpt/name.ckpt'
 
 # evaluate on cpu
 python eval.py ckpt_path='/path/to/ckpt/name.ckpt'
