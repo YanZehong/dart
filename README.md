@@ -201,7 +201,7 @@ Experiments on multiple datasets including a curated dataset of long documents o
   - Non-transformer-based Methods:
     - LRR [[paper](https://aclanthology.org/D17-1217/)] [[docs](https://github.com/HKUST-KnowComp/DMSC)]  
     - N-DMSC [[paper](https://aclanthology.org/D17-1217/)] [[docs](https://github.com/HKUST-KnowComp/DMSC)]  
-    - VWS-DMSC [[paper](hhttps://aclanthology.org/N19-1036/)] [[docs](https://github.com/HKUST-KnowComp/VWS-DMSC)]  
+    - VWS-DMSC [[paper](https://aclanthology.org/N19-1036/)] [[docs](https://github.com/HKUST-KnowComp/VWS-DMSC)]  
     - D-MILN [[paper](https://aclanthology.org/2020.emnlp-main.570/)]   
   - Trainsformer-based Methods:
     - Longformer [[paper](https://arxiv.org/abs/2004.05150)] [[docs](https://github.com/allenai/longformer)]  
