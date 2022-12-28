@@ -72,7 +72,7 @@ pip install -r requirements.txt
 ### Fine-tuning with DART
 Train model with chosen experiment configuration from [configs/experiment/](configs/experiment/)
 ```bash
-python run.py gpu=1 experiment=tripadvisor_dart.yaml
+python run.py gpu=1 experiment=tripadvisor_dart
 ```
 
 Train model with default configuration
@@ -199,7 +199,7 @@ Experiments on multiple datasets including a curated dataset of long documents o
 
 ### Comparative Study
   - Non-transformer-based Methods:
-    - LRR [[paper](https://aclanthology.org/D17-1217/)] [[docs](https://github.com/HKUST-KnowComp/DMSC)]  
+    - LRR [[paper](https://dl.acm.org/doi/abs/10.1145/1835804.1835903)] [[docs](https://github.com/biubiutang/LARA-1)]  
     - N-DMSC [[paper](https://aclanthology.org/D17-1217/)] [[docs](https://github.com/HKUST-KnowComp/DMSC)]  
     - VWS-DMSC [[paper](https://aclanthology.org/N19-1036/)] [[docs](https://github.com/HKUST-KnowComp/VWS-DMSC)]  
     - D-MILN [[paper](https://aclanthology.org/2020.emnlp-main.570/)]   
@@ -218,14 +218,14 @@ All code *and* models are released under the Apache 2.0 license. See the
 All experiments in the paper were fine-tuned on a GPU/GPUs, which has 40GB of device RAM. Therefore, when using a GPU with 12GB - 16GB of RAM, you are likely to encounter out-of-memory issues if you use the same hyperparameters described in the paper. Additionally, different models require different amount of memory. Available memory also depends on the accelerator configuration (both type and count).
 
 The factors that affect memory usage are:  
--  **`data.max_num_seq`**: You can fine-tune with a shorter max sequence length to save
+-   **`data.max_num_seq`**: You can fine-tune with a shorter max sequence length to save
     substantial memory. 
 
 -   **`train.batch_size`**: The memory usage is also directly proportional to
     the batch size. You could decrease the `train.batch_size=8` (and decrease `train.lr`
     accordingly) if you encounter an out-of-memory error.
 
--   **Model backbone type, `base` vs. `large`**: The `large` model
+-   **`model.backbone`, `base` vs. `large`**: The `large` model
     requires significantly more memory than `base`.
 
 
