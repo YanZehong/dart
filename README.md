@@ -180,7 +180,9 @@ The style guide is available [here](https://pytorch-lightning.readthedocs.io/en/
 
 ### DART Architecture
 
-DART overcomes the restriction of 512 tokens by splitting the long document into sentences or chunks of less than 512 tokens, and processing each sentence/chunk before aggregating the results. The proposed DART framework takes as input a document $d$ and an aspect $a_j$ and output the document representation $\hat{d}_j$ with respect to $a_j$.
+<img width="645" alt="Fig-3_DART" src="https://user-images.githubusercontent.com/39628004/209788430-f124b814-f70a-41a8-9335-3c5d0ff371a0.png">
+
+Overview of the model: DART overcomes the restriction of 512 tokens by splitting the long document into sentences or chunks of less than 512 tokens, and processing each sentence/chunk before aggregating the results. The proposed DART framework takes as input a document $d$ and an aspect $a_j$ and output the document representation $\hat{d}_j$ with respect to $a_j$.
 There are three key blocks in DART:
 
 - Sentence Encoding Block.  
