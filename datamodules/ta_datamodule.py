@@ -163,7 +163,7 @@ class TripAdvisorDatamodule(pl.LightningDataModule):
             for x in raw_data:
                 doc = x["doc_text"]
                 doc_aspect = x["doc_aspect"]
-                aspect_label = persent_label_map(x["doc_aspect_label"])
+                aspect_label = trip_advisor_label_map(x["doc_aspect_rating"])
                 encoded_input = tokenizer.encode_plus(
                     text=doc_aspect,
                     text_pair=doc,

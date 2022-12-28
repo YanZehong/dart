@@ -11,15 +11,17 @@
 This work introduces a hierarchical Transformer-based architecture called **DART** (**D**ocument-level **A**spect-based **R**epresentation from **T**ransformers) which effectively encodes information at three levels, namely token, sentence, and document level. DART employs an attentive aggregation mechanism to learn aspect-specific document representation for sentiment classification.
 
 ## Table of Contents
-- [Project Structure](#project-structure)
-- [Quickstart](#quickstart-)
-  * [Installation](#installation)
-  * [Fine-tuning with DART](#fine-tuning-with-dart)
-- [Introduction](#introduction)
-  * [DART Architecture](#dart-architecture)
-  * [Dataset](#dataset)
-- [FAQ](#faq)
-- [Citation](#citation)
+- [Project Structure](#project-structure)  
+- [Quickstart](#quickstart-)  
+  * [Installation](#installation)  
+  * [Fine-tuning with DART](#fine-tuning-with-dart)  
+  * [Evaluate checkpoint on test dataset](#evaluate-checkpoint-on-test-dataset)  
+- [Introduction](#introduction)  
+  * [DART Architecture](#dart-architecture)  
+  * [Datasets](#datasets)  
+  * [Comparative Study](#comparative-study)
+- [FAQ](#faq)  
+- [Citation](#citation)  
 
 ## Project Structure
 The directory structure of this project is:
@@ -91,11 +93,12 @@ python run.py gpu=3 train.num_epochs=10 train.batch_size=32
 ### Evaluate checkpoint on test dataset  
 
 You can find fine-tuned checkpoints in our [Google Cloud Storage Bucket](https://console.cloud.google.com/welcome?project=river-interface-345315).  
-We recommend using the following checkpoints:  
+We recommend using the following checkpoints :  
 |  Dataset   |                                   Fine-tuned checkpoint                                   |   Size   | Accuracy | 
 | :------- | :----------------------------------------------------------------------------------------- | :-------: |:----------------: |
 |TripAdvisor | epoch=3-step=8694.ckpt | 2.0G | 86.36% |
-|Persent | epoch=0-step=88.ckpt | 2.0G | 83.40% |
+|BeerAdvocate |  |  |  |
+|PerSenT | epoch=0-step=88.ckpt | 2.0G | 83.40% |
 
 ```bash
 # Optionally, you can download them using gsutil as
@@ -177,22 +180,32 @@ The style guide is available [here](https://pytorch-lightning.readthedocs.io/en/
 
 ### DART Architecture
 
-DART overcomes the restriction of 512 tokens by splitting the long document into sentences or chunks of less than 512 tokens, and processing each sentence/chunk before aggregating the results.
-Figure \ref{fig:dart} shows the proposed DART framework  that takes as input a document $d$ and an aspect $a_j$ and output the document representation $\hat{d}_j$ with respect to $a_j$.
+DART overcomes the restriction of 512 tokens by splitting the long document into sentences or chunks of less than 512 tokens, and processing each sentence/chunk before aggregating the results. The proposed DART framework takes as input a document $d$ and an aspect $a_j$ and output the document representation $\hat{d}_j$ with respect to $a_j$.
 There are three key blocks in DART:
 
 - Sentence Encoding Block.  
 - Global Context Interaction Block.  
 - Aspect Aggregation Block.  
 
-### Dataset
+### Datasets
+
+Experiments on multiple datasets including a curated dataset of long documents on social issues. Additionally, you can run fine-tuning of the downloaded model on your dataset of interest.
 
 |      Dataset      |      \#aspects      |      \#docs      | \#long docs (\%)| \#sentences/doc |  \#tokens/doc | \#tokens/sentence
 |:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|
 | TripAdvisor | 7 | 28543 | 4027 (14.1\%) | 12.9 | 298.9 | 23.1|
 | BeerAdvocate| 4 | 27583 | 217 (0.8\%) | 11.1 | 173.5 | 15.7|
-|PerSenT | 6 | 4512 | 1031 (22.9\%) | 17.5 | 389.8 | 22.2  |
+| PerSenT | 6 | 4512 | 1031 (22.9\%) | 17.5 | 389.8 | 22.2  |
 
+### Comparative Study
+  - Non-transformer-based Methods:
+    - LRR [[paper](https://aclanthology.org/D17-1217/)] [[docs](https://github.com/HKUST-KnowComp/DMSC)]  
+    - N-DMSC [[paper](https://aclanthology.org/D17-1217/)] [[docs](https://github.com/HKUST-KnowComp/DMSC)]  
+    - VWS-DMSC [[paper](hhttps://aclanthology.org/N19-1036/)] [[docs](https://github.com/HKUST-KnowComp/VWS-DMSC)]  
+    - D-MILN [[paper](https://aclanthology.org/2020.emnlp-main.570/)]   
+  - Trainsformer-based Methods:
+    - Longformer [[paper](https://arxiv.org/abs/2004.05150)] [[docs](https://github.com/allenai/longformer)]  
+    - Big Bird [[paper](https://arxiv.org/abs/2007.14062)] [[docs](https://github.com/google-research/bigbird)]  
 
 ## FAQ
 
