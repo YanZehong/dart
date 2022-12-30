@@ -47,14 +47,16 @@ The directory structure of this project is:
 ## Quickstart 🚀
 
 ### Installation
-Install dependencies.
+
+Step 0. Download and install Miniconda from the [official website](https://docs.conda.io/en/latest/miniconda.html).  
+Step 1. Install DART and dependencies.  
 
 ```
 # clone project
 git clone https://github.com/YanZehong/dart
 cd dart
 
-# [OPTIONAL] create conda environment
+# [OPTIONAL] create conda environment and activate it
 conda create -n myenv -y python=3.10 pip
 conda activate myenv
 
@@ -70,9 +72,10 @@ pip install -r requirements.txt
 
 
 ### Fine-tuning with DART
-Train model with chosen experiment configuration from [configs/experiment/](configs/experiment/)
+Train model with chosen experiment configuration from [configs/experiment/](configs/experiment/). For different datasets, please use the recommended experimental settings (`tripadvisor-dart`, `beeradvocate-dart` and `persent-dart`).
+
 ```bash
-python run.py gpu=1 experiment=tripadvisor_dart
+python run.py experiment=tripadvisor-dart gpu=1
 ```
 
 Train model with default configuration
@@ -90,19 +93,22 @@ You can override any parameter from command line like this
 python run.py gpu=3 train.num_epochs=10 train.batch_size=32
 ```
 
+> **Note** When you only specify some variables, other values/parameters will use default setting from [configs/cfg.yaml](configs/cfg.yaml).
+
 ### Evaluate checkpoint on test dataset  
 
-You can find fine-tuned checkpoints in our [Google Cloud Storage Bucket](https://console.cloud.google.com/welcome?project=river-interface-345315).  
+You can find fine-tuned checkpoints in our [Google Drive](https://drive.google.com/drive/folders/1OAJw4dLMSe5ySM2QUy2lBtNPgFd74k1c?usp=share_link).  
 We recommend using the following checkpoints :  
 |  Dataset   |                                   Fine-tuned checkpoint                                   |   Size   | Accuracy | 
 | :------- | :----------------------------------------------------------------------------------------- | :-------: |:----------------: |
-|TripAdvisor | epoch=3-step=8694.ckpt | 2.0G | 86.36% |
-|BeerAdvocate |  |  |  |
-|PerSenT | epoch=0-step=88.ckpt | 2.0G | 83.40% |
+|trip_advisor | epoch=3-step=8694.ckpt | 1962MB | 86.36% |
+|beer_advocate | epoch=3-step=5936.ckpt | 1962MB | 88.13% |
+|persent | epoch=0-step=88.ckpt | 1962MB | 83.40% |
 
 ```bash
-# Optionally, you can download them using gsutil as
-gsutil cp -r gs://dart/ dart/logs/runs/
+# Optionally, you can download them using wget or gdown as
+pip install gdown
+gdown --folder https://drive.google.com/drive/folders/1OAJw4dLMSe5ySM2QUy2lBtNPgFd74k1c?usp=share_link
 # Next, unzip it to some directory `ckpt_path`,
 # And then specify the corresponding dataset (DATA_NAME: trip_advisor, beer_advocate, persent).
 # evaluate on 1 GPU
@@ -112,7 +118,7 @@ python eval.py gpu=1 data=DATA_NAME ckpt_path='/path/to/ckpt/name.ckpt'
 python eval.py ckpt_path='/path/to/ckpt/name.ckpt'
 ```
 
-> **Note**: If you get an error `mismatched input '=' expecting <EOF>`, use the escape character '\=' to fix this problem. Or you can specify the value of `ckpt_path` in [configs/cfg.yaml](configs/cfg.yaml).
+> **Note**: If you get an error `mismatched input '=' expecting <EOF>`, use the escape character '\=' to fix this problem. Or you can specify the value of `ckpt_path` in [configs/cfg.yaml](configs/cfg.yaml). Consider visiting that [gdown page](https://github.com/wkentaro/gdown) for full instructions, since the source repo may have more up-to-date instructions.
 
 <details>
 <summary><b>Use Miniconda for GPU environments</b></summary>
