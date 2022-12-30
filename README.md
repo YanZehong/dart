@@ -109,8 +109,10 @@ We recommend using the following checkpoints :
 # Optionally, you can download them using wget or gdown as
 pip install gdown
 gdown --folder https://drive.google.com/drive/folders/1OAJw4dLMSe5ySM2QUy2lBtNPgFd74k1c?usp=share_link
-# Next, unzip it to some directory `ckpt_path`,
-# And then specify the corresponding dataset (DATA_NAME: trip_advisor, beer_advocate, persent).
+# Next, unzip it to the directory `ckpt_path`
+# And then specify the corresponding dataset 
+# by setting DATA_NAME as trip_advisor/beer_advocate/persent
+
 # evaluate on 1 GPU
 python eval.py gpu=1 data=DATA_NAME ckpt_path='/path/to/ckpt/name.ckpt'
 
