@@ -154,7 +154,7 @@ For example, instead of calculating accuracy by yourself, you should use the pro
 ```python
 from torchmetrics import Accuracy
 
-class ModelModel(LightningModule):
+class ModelModule(LightningModule):
     def __init__(self)
         self.train_acc = Accuracy()
         self.val_acc = Accuracy()
