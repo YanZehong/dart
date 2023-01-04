@@ -27,12 +27,6 @@ dev:
   num_workers: 8
   prefetch_factor: 4
 
-test:
-  batch_size: 1
-  num_workers: 0
-  prefetch_factor: 2
-  threshold: 0.5
-  monitor: val/loss
 
 data:
   max_num_seq: 1600

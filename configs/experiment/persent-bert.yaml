@@ -2,6 +2,7 @@
 # to execute this experiment run:
 # python train.py experiment=persent-bert
 defaults:
+  - override /model: bert_truncation.yaml
   - override /data: persent.yaml
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
@@ -33,4 +34,4 @@ test:
   monitor: val/loss
 
 data:
-  max_num_seq: 256
+  max_num_seq: 512
