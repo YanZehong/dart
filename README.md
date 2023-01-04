@@ -50,6 +50,7 @@ The directory structure of this project is:
 
 Step 0. Download and install Miniconda from the [official website](https://docs.conda.io/en/latest/miniconda.html).  
 Step 1. Install DART and dependencies.  
+Step 2. Specify `root_dir` in [configs/cfg.yaml](configs/cfg.yaml)
 
 ```
 # clone project
@@ -62,13 +63,16 @@ conda activate myenv
 
 # install pytorch according to instructions
 # https://pytorch.org/get-started/
-# conda install pytorch torchvision torchaudio pytorch-cuda=11.6 -c pytorch -c nvidia
+# conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 cudatoolkit=11.6 -c pytorch -c conda-forge
 
 # install requirements
 pip install -r requirements.txt
+
+# modify the project path in configs/cfg.yaml
+# root_dir: ''
 ```
 
-> **Note**: To install requirements, run `pip install -r requirements.txt`. Please ensure that you have met the prerequisites in [PyTorch](https://pytorch.org/) and install correspond version. 
+> **Note**: To install requirements, run `pip install -r requirements.txt`. Please ensure that you have met the prerequisites in [PyTorch](https://pytorch.org/) and install corresponding version. 
 
 
 ### Fine-tuning with DART
@@ -99,7 +103,7 @@ python run.py gpu=3 train.num_epochs=10 train.batch_size=32
 
 You can find fine-tuned checkpoints in our [Google Drive](https://drive.google.com/drive/folders/1OAJw4dLMSe5ySM2QUy2lBtNPgFd74k1c?usp=share_link).  
 We recommend using the following checkpoints :  
-|  Dataset   |                                   Fine-tuned checkpoint                                   |   Size   | Accuracy | 
+|  Data   |                                   Fine-tuned Checkpoint                                   |   Size   | Accuracy | 
 | :------- | :----------------------------------------------------------------------------------------- | :-------: |:----------------: |
 |trip_advisor | epoch=3-step=8694.ckpt | 1962MB | 86.36% |
 |beer_advocate | epoch=3-step=5936.ckpt | 1962MB | 88.13% |
@@ -120,7 +124,7 @@ python eval.py gpu=1 data=DATA_NAME ckpt_path='/path/to/ckpt/name.ckpt'
 python eval.py ckpt_path='/path/to/ckpt/name.ckpt'
 ```
 
-> **Note**: If you get an error `mismatched input '=' expecting <EOF>`, use the escape character '\=' to fix this problem. Or you can specify the value of `ckpt_path` in [configs/cfg.yaml](configs/cfg.yaml). Consider visiting that [gdown page](https://github.com/wkentaro/gdown) for full instructions, since the source repo may have more up-to-date instructions.
+> **Note**: If you get an error `mismatched input '=' expecting <EOF>`, use the escape character '\\=' to fix this problem. Or you can specify the value of `ckpt_path` in [configs/cfg.yaml](configs/cfg.yaml). Consider visiting that [gdown page](https://github.com/wkentaro/gdown) for full instructions, since the source repo may have more up-to-date instructions.
 
 <details>
 <summary><b>Use Miniconda for GPU environments</b></summary>
