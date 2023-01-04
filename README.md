@@ -124,7 +124,7 @@ python eval.py gpu=1 data=DATA_NAME ckpt_path='/path/to/ckpt/name.ckpt'
 python eval.py ckpt_path='/path/to/ckpt/name.ckpt'
 ```
 
-> **Note**: If you get an error `mismatched input '=' expecting <EOF>`, use the escape character '\\=' to fix this problem. Or you can specify the value of `ckpt_path` in [configs/cfg.yaml](configs/cfg.yaml). Consider visiting that [gdown page](https://github.com/wkentaro/gdown) for full instructions, since the source repo may have more up-to-date instructions.
+> **Note**: If you get an error `mismatched input '=' expecting <EOF>`, use the escape character `\=` to fix this problem. Or you can specify the value of `ckpt_path` in [configs/cfg.yaml](configs/cfg.yaml). Consider visiting that [gdown page](https://github.com/wkentaro/gdown) for full instructions, since the source repo may have more up-to-date instructions.
 
 <details>
 <summary><b>Use Miniconda for GPU environments</b></summary>
