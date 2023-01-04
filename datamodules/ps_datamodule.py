@@ -21,7 +21,7 @@ class PersentDatamodule(pl.LightningDataModule):
         self.keep_auxiliary = True
 
         if conf.model.arch in ["bert_truncation", "big_bird"]:
-            self.file_path = '/home/zehong/DART/outputs/corpus_' + str(
+            self.file_path = self.conf.root_dir + '/outputs/corpus_' + str(
                 self.conf.data.name) + '_' + str(conf.model.arch) + '_' + str(
                     self.conf.data.max_num_seq) + '.pickle'
             if not os.path.exists(self.file_path):
@@ -32,7 +32,7 @@ class PersentDatamodule(pl.LightningDataModule):
                     self.packed_data = pickle.load(f)
                 
         elif conf.model.arch in ["longformer"]:
-            self.file_path = '/home/zehong/DART/outputs/corpus_' + str(
+            self.file_path = self.conf.root_dir + '/outputs/corpus_' + str(
                 self.conf.data.name) + '_' + str(conf.model.arch) + '_' + str(
                     self.conf.data.max_num_seq) + '.pickle'
             if not os.path.exists(self.file_path):
@@ -43,7 +43,7 @@ class PersentDatamodule(pl.LightningDataModule):
                     self.packed_data = pickle.load(f)
 
         elif conf.model.arch in ["dart"]:
-            self.file_path = '/home/zehong/DART/outputs/corpus_' + str(
+            self.file_path = self.conf.root_dir + '/outputs/corpus_' + str(
                 self.conf.data.name) + '_' + str(self.conf.data.max_num_sent) + '_' + str(
                     self.conf.data.max_num_token_per_sent) + '.pickle'
             if not os.path.exists(self.file_path):
