@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from .registry import register_model
 from .modeling_dart import AttentiveAggregation, LocalAttentiveAggregation
-from transformers import BertModel, BigBirdModel, RobertaModel, AutoModel
+from transformers import BigBirdModel, BigBirdConfig, AutoModel
 import pickle
 
 
@@ -18,24 +18,28 @@ class HierarchicalDART(nn.Module):
         self.conf = conf
         interact_encoder_conf = self.conf.model.interact_encoder
         refine_encoder_conf = self.conf.model.refine_encoder
-
-        if self.conf.model.backbone in ["bert-base-uncased", "bert-large-uncased"]:
-            self.sent_encoder = BertModel.from_pretrained(self.conf.model.backbone)
-        elif self.conf.model.backbone in ["google/bigbird-roberta-base", "google/bigbird-roberta-large"]:
-            self.sent_encoder = BigBirdModel.from_pretrained(self.conf.model.backbone)
+        if self.conf.model.backbone:
+            self.sent_encoder = AutoModel.from_pretrained(self.conf.model.backbone, attention_type = "original_full")
+        else:
+            self.sent_encoder = BigBirdModel(BigBirdConfig())
         
-        if self.conf.data.name == "trip_advisor":
-            print("################ Loading aspect embeddings of TripAdvisor")
-            emb_name = "ta_aspects_" + str(interact_encoder_conf.d_model) + "_emb.dat"
-        elif self.conf.data.name == "beer_advocate":
-            print("################ Loading aspect embeddings of BeerAdvocate")
-            emb_name = "ba_aspects_" + str(interact_encoder_conf.d_model) + "_emb.dat"
-        elif self.conf.data.name == "persent":
-            print("################ Loading aspect embeddings of PerSenT")
-            emb_name = "ps_6aspects_" + str(interact_encoder_conf.d_model) + "_emb.dat"
-        
-        with open (self.conf.root_dir + "/dataset/aspect_embs/" + emb_name, "rb") as f:
-            self.fixed_aspect_emb = pickle.load(f)
+        if self.conf.data.num_aspect > 0:
+            if self.conf.data.name == "trip_advisor":
+                print("################ Loading aspect embeddings of TripAdvisor")
+                emb_name = "ta_aspects_" + str(interact_encoder_conf.d_model) + "_emb.dat"
+            elif self.conf.data.name == "beer_advocate":
+                print("################ Loading aspect embeddings of BeerAdvocate")
+                emb_name = "ba_aspects_" + str(interact_encoder_conf.d_model) + "_emb.dat"
+            elif self.conf.data.name == "social_news":
+                print("################ Loading aspect embeddings of SocialNews")
+                emb_name = "sn_6aspects_" + str(interact_encoder_conf.d_model) + "_emb.dat"
+            file_name = self.conf.root_dir + "/dataset/aspect_embs/" + self.conf.model.backbone.split('-')[0] + "_" + emb_name
+            print(f"################ Loading from {file_name}")
+            with open (file_name, "rb") as f:
+                self.fixed_aspect_emb = pickle.load(f)
+            self.aspect_emb_layer = nn.Embedding.from_pretrained(self.fixed_aspect_emb, freeze=False)
+        else:
+            self.aspect_emb_layer = nn.Embedding(1,interact_encoder_conf.d_model)
 
         self.pos_emb_layer = nn.Embedding(self.conf.data.max_num_sent+1,
                                           interact_encoder_conf.d_model,
@@ -62,9 +66,8 @@ class HierarchicalDART(nn.Module):
         self.refine_encoder = nn.TransformerEncoder(
             refine_trans_encoder_layer, num_layers=refine_encoder_conf.num_layers)
         
-        self.aspect_emb_layer = nn.Embedding.from_pretrained(self.fixed_aspect_emb, freeze=False)
-
-        self.local_pooling = LocalAttentiveAggregation(input_size=refine_encoder_conf.d_model)
+        self.query_cls = False if self.conf.data.num_aspect > 0 else True
+        self.local_pooling = LocalAttentiveAggregation(input_size=refine_encoder_conf.d_model, query_cls=self.query_cls)
         self.global_pooling = AttentiveAggregation(input_size=refine_encoder_conf.d_model)
 
         self.clf = nn.Sequential(
@@ -97,18 +100,23 @@ class HierarchicalDART(nn.Module):
         """
     
         bsz, num_sent, num_token = input_ids.shape
-        sent_mask = torch.clone(attention_mask[:, :, 0]).detach() 
+        sent_mask = torch.clone(attention_mask[:, :, 0].bool()).detach() 
 
         """1st: Sentence Encoding Block"""
         flatten_input_ids = input_ids.reshape((bsz * num_sent, num_token))
         flatten_attention_mask = attention_mask.reshape((bsz * num_sent, num_token)) 
-        flatten_attention_mask[:, 0] = True
+        # flatten_attention_mask[:, 0] = True
+        flatten_attention_mask[:, 0] = 1.0
         flatten_token_type_ids = token_type_ids.reshape((bsz * num_sent, num_token)) 
         
-        sent_embs = self.sent_encoder(input_ids=flatten_input_ids,
-                            attention_mask=flatten_attention_mask,
-                            token_type_ids=flatten_token_type_ids).last_hidden_state 
-        
+        if 't5' in self.conf.model.backbone:
+            sent_embs = self.sent_encoder(input_ids=flatten_input_ids,
+                            attention_mask=flatten_attention_mask).last_hidden_state 
+        else:
+            sent_embs = self.sent_encoder(input_ids=flatten_input_ids,
+                                attention_mask=flatten_attention_mask,
+                                token_type_ids=flatten_token_type_ids).last_hidden_state 
+            
         cls_embs = sent_embs[:, 0, :]  
 
         """2nd: Global Context Interaction Block"""
@@ -123,15 +131,19 @@ class HierarchicalDART(nn.Module):
 
         sent_embs = self.refine_encoder(
             sent_embs,
-            src_key_padding_mask=~flatten_attention_mask,
+            src_key_padding_mask=~flatten_attention_mask.bool(),
         ).reshape((bsz, num_sent, num_token, -1)) 
 
         """3rd: Aspect Aggregation Block"""
-        local_embs = self.local_pooling(sent_embs, attention_mask) 
-        aspect_emb = self.aspect_emb_layer(aspect_ids)
-        doc_emb = self.global_pooling(local_embs, sent_mask, aspect_emb) 
+        aspect_embs = self.aspect_emb_layer(aspect_ids)
+        
+        local_embs = self.local_pooling(sent_embs, attention_mask.bool())   
+        doc_emb = self.global_pooling(local_embs, sent_mask, aspect_embs) 
 
         """4th: MLP"""
         logits = self.clf(doc_emb)
         
-        return {"logits": logits}
+                
+        output_dict = {"logits": logits}
+        return output_dict
+        

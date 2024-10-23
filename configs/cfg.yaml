@@ -1,8 +1,8 @@
 # @package _global_
 defaults:
   - _self_
-  - model: dart # bert_truncation, big_bird, longformer, dart
-  - data: persent # trip_advisor, beer_advocate, persent
+  - model: dart 
+  - data: social_news # trip_advisor, beer_advocate, social_news
   - logdir: default
   - experiment: null
   - override hydra/hydra_logging: colorlog
@@ -19,7 +19,7 @@ train:
   scheduler_factor: 0.8
   scheduler_patience: 2
 
-  patience: 16 # for early stop
+  patience: 100
   clip_grad: 0.5
 
 dev:

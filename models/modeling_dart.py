@@ -29,9 +29,10 @@ class AttentiveAggregation(nn.Module):
 
 class LocalAttentiveAggregation(nn.Module):
 
-    def __init__(self, input_size) -> None:
+    def __init__(self, input_size, query_cls=False) -> None:
         super().__init__()
         self.local_pooling = AttentiveAggregation(input_size)
+        self.query_index=0 if query_cls else 1
 
     def forward(self, embs, emb_mask):
         """
@@ -42,5 +43,5 @@ class LocalAttentiveAggregation(nn.Module):
         bsz, num_sent, num_token, hidden_size = embs.shape
         local_embs = torch.zeros((bsz, num_sent, hidden_size), dtype=embs.dtype, device=embs.device)
         for i in range(num_sent):
-            local_embs[:, i, :] = self.local_pooling(embs[:, i, :, :], emb_mask[:, i, :], embs[:, i, 1, :])
+            local_embs[:, i, :] = self.local_pooling(embs[:, i, :, :], emb_mask[:, i, :], embs[:, i, self.query_index, :])
         return local_embs

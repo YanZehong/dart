@@ -14,7 +14,7 @@ class SentenceCollator:
         sent_ids = torch.zeros(
             (bsz, conf.data.max_num_sent, conf.data.max_num_token_per_sent),
             dtype=torch.long)
-        attention_mask = torch.zeros_like(sent_ids, dtype=torch.bool)
+        attention_mask = torch.zeros_like(sent_ids, dtype=torch.float)
         segment_ids = torch.zeros_like(sent_ids, dtype=torch.long)
         sent_pos_ids = torch.zeros((bsz, conf.data.max_num_sent), dtype=torch.long)
         label_ids = torch.zeros((bsz, ), dtype=torch.long)
@@ -31,7 +31,7 @@ class SentenceCollator:
                 sent_pos_ids[bsz_idx, j] = sent_pos_ids_list[j]
                 for k in range(len(sent_ids_list[j])):
                     sent_ids[bsz_idx, j, k] = sent_ids_list[j][k]
-                    attention_mask[bsz_idx, j, k] = True
+                    attention_mask[bsz_idx, j, k] = 1.0
                     segment_ids[bsz_idx, j, k] = segment_ids_list[j][k]
 
             label_ids[bsz_idx] = doc_label_

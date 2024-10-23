@@ -1,15 +1,15 @@
 # @package _global_
 # to execute this experiment run:
-# python train.py experiment=persent-bert
+# python train.py experiment=socialnews-dart
 defaults:
-  - override /model: bert_truncation.yaml
-  - override /data: persent.yaml
+  - override /model: dart.yaml
+  - override /data: social_news.yaml
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
 
 train:
-  num_epoch: 5
-  batch_size: 16
+  num_epoch: 10
+  batch_size: 8
   num_workers: 8
   prefetch_factor: 4
 
@@ -18,11 +18,11 @@ train:
   scheduler_factor: 0.8
   scheduler_patience: 2
 
-  patience: 10 # for early stop
+  patience: 100 # for early stop
   clip_grad: 0.5
 
 dev:
-  batch_size: 16
+  batch_size: 8
   num_workers: 8
   prefetch_factor: 4
 
@@ -31,7 +31,12 @@ test:
   num_workers: 0
   prefetch_factor: 2
   threshold: 0.5
-  monitor: val/loss
+  monitor: val/acc
 
 data:
-  max_num_seq: 512
+  max_num_sent: 25
+  max_num_token_per_sent: 64
+  
+val_check_interval: 0.25
+gpu: 0
+seed: 30

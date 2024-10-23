@@ -1,14 +1,16 @@
 from .registry import register_datamodule
 import pytorch_lightning as pl
 import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 import csv
-from transformers import BertTokenizer, BigBirdTokenizer, RobertaTokenizer, LongformerTokenizer
+from transformers import BertTokenizer, BigBirdTokenizer, RobertaTokenizer, LongformerTokenizer, AutoTokenizer
 import torch
 from torch.utils.data import DataLoader
 from .components import build_collator
 from .misc import truncate, beer_advocate_label_map
 import json
 import pickle
+
 
 _pjoin = os.path.join
 
@@ -92,10 +94,7 @@ class BeerAdvocateDatamodule(pl.LightningDataModule):
     
     def process(self):
         conf = self.conf
-        if conf.model.arch == "bert_truncation":
-            tokenizer = BertTokenizer.from_pretrained(self.conf.model.backbone)
-        elif conf.model.arch == "big_bird":
-            tokenizer = BigBirdTokenizer.from_pretrained(self.conf.model.backbone)
+        tokenizer = AutoTokenizer.from_pretrained(self.conf.model.backbone)
         
         aspects2id = self.packed_data["aspects2id"]
         for mode in ["train", "dev", "test"]:
@@ -144,14 +143,7 @@ class BeerAdvocateDatamodule(pl.LightningDataModule):
         separate your segments with the separation token tokenizer.sep_token (or </s>).
         '''
         conf = self.conf
-        if conf.model.arch == "longformer":
-            print("######## Use longformer tokenizer")
-            tokenizer = LongformerTokenizer.from_pretrained(
-                self.conf.model.backbone)
-        elif conf.model.arch == "roberta_truncation":
-            print("######## Use RoBERTa tokenizer")
-            tokenizer = RobertaTokenizer.from_pretrained(
-                self.conf.model.backbone)
+        tokenizer = AutoTokenizer.from_pretrained(self.conf.model.backbone)
 
         aspects2id = self.packed_data["aspects2id"]
         for mode in ["train", "dev", "test"]:
@@ -183,12 +175,7 @@ class BeerAdvocateDatamodule(pl.LightningDataModule):
 
     def sentence_process(self):
         conf = self.conf
-        if self.conf.model.backbone == "bert-base-uncased":
-            tokenizer = BertTokenizer.from_pretrained(self.conf.model.backbone)
-        elif self.conf.model.backbone == "google/bigbird-roberta-base":
-            tokenizer = BigBirdTokenizer.from_pretrained(self.conf.model.backbone)
-        elif self.conf.model.backbone == "roberta-base":
-            tokenizer = RobertaTokenizer.from_pretrained(self.conf.model.backbone)
+        tokenizer = AutoTokenizer.from_pretrained(self.conf.model.backbone)
         
         aspects2id = self.packed_data["aspects2id"]
         for mode in ["train", "dev", "test"]:
@@ -334,9 +321,9 @@ class BeerAdvocateDatamodule(pl.LightningDataModule):
         collate_fn = build_collator(conf=self.conf)
         loader = DataLoader(
             self.packed_data["test"],
-            batch_size=self.conf.test.batch_size, # 1
+            batch_size=self.conf.test.batch_size, 
             collate_fn=collate_fn,
-            num_workers=self.conf.test.num_workers, # 0
-            prefetch_factor=self.conf.test.prefetch_factor, # 2
+            num_workers=self.conf.test.num_workers, 
+            prefetch_factor=self.conf.test.prefetch_factor, 
         )
         return loader

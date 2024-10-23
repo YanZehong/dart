@@ -30,6 +30,7 @@ class DASCModule(pl.LightningModule):
         self.conf = conf
         self.net = build_model(conf=conf)
         self.criterion = torch.nn.CrossEntropyLoss()
+
         # metric objects for calculating and averaging accuracy across batches
         self.train_acc = Accuracy(task="multiclass", num_classes=self.conf.model.num_class)
         self.val_acc = Accuracy(task="multiclass", num_classes=self.conf.model.num_class)
@@ -53,6 +54,7 @@ class DASCModule(pl.LightningModule):
         self.test_preds = []
         self.test_targets = []
         self.test_aspects = []
+
 
     def on_train_start(self):
         # by default lightning executes validation step sanity checks before training starts,

@@ -2,58 +2,39 @@ from .registry import register_datamodule
 import pytorch_lightning as pl
 import os
 import csv
-from transformers import BertTokenizer, BigBirdTokenizer, RobertaTokenizer, LongformerTokenizer
+from transformers import BertTokenizer, BigBirdTokenizer, RobertaTokenizer, LongformerTokenizer, AutoTokenizer
 import torch
 from torch.utils.data import DataLoader
 from .components import build_collator
-from .misc import truncate, persent_label_map
+from .misc import truncate, social_news_label_map
 import json
 import pickle
+
 
 _pjoin = os.path.join
 
 
-@register_datamodule("persent")
-class PersentDatamodule(pl.LightningDataModule):
+@register_datamodule("social_news")
+class SocialNewsDatamodule(pl.LightningDataModule):
     def __init__(self, conf):
         super().__init__()
         self.conf = conf
         self.keep_auxiliary = True
+        self.keep_entity = conf.data.keep_entity
+        entity_postix = '_e_' if self.keep_entity else ''
 
-        if conf.model.arch in ["bert_truncation", "big_bird"]:
-            self.file_path = self.conf.root_dir + '/outputs/corpus_' + str(
-                self.conf.data.name) + '_' + str(conf.model.arch) + '_' + str(
-                    self.conf.data.max_num_seq) + '.pickle'
-            if not os.path.exists(self.file_path):
-                self.convert_data_to_features()
-                self.process()
-            else:
-                with open(self.file_path, 'rb') as f:
-                    self.packed_data = pickle.load(f)
-                
-        elif conf.model.arch in ["longformer"]:
-            self.file_path = self.conf.root_dir + '/outputs/corpus_' + str(
-                self.conf.data.name) + '_' + str(conf.model.arch) + '_' + str(
-                    self.conf.data.max_num_seq) + '.pickle'
-            if not os.path.exists(self.file_path):
-                self.convert_data_to_features()
-                self.process_for_roberta()
-            else:
-                with open(self.file_path, 'rb') as f:
-                    self.packed_data = pickle.load(f)
+        self.file_path = self.conf.root_dir + '/outputs/corpus_' + str(
+            self.conf.data.name) + '_' + str(self.conf.data.max_num_sent) + '_' + str(
+                self.conf.data.max_num_token_per_sent) + entity_postix + conf.model.backbone.split('/')[1] + '.pickle'
+        if not os.path.exists(self.file_path):
+            print(f"################ Processing dataset: {self.file_path}")
+            self.convert_data_to_features()
+            self.sentence_process()
+        else:
+            print(f"################ Loading dataset: {self.file_path}")
+            with open(self.file_path, 'rb') as f:
+                self.packed_data = pickle.load(f)
 
-        elif conf.model.arch in ["dart"]:
-            self.file_path = self.conf.root_dir + '/outputs/corpus_' + str(
-                self.conf.data.name) + '_' + str(self.conf.data.max_num_sent) + '_' + str(
-                    self.conf.data.max_num_token_per_sent) + '.pickle'
-            if not os.path.exists(self.file_path):
-                self.convert_data_to_features()
-                self.sentence_process()
-            else:
-                with open(self.file_path, 'rb') as f:
-                    self.packed_data = pickle.load(f)
-                
-    
     def convert_data_to_features(self):
         conf = self.conf
         data_dir = conf.data_dir
@@ -105,10 +86,8 @@ class PersentDatamodule(pl.LightningDataModule):
     
     def process(self):
         conf = self.conf
-        if conf.model.arch == "bert_truncation":
-            tokenizer = BertTokenizer.from_pretrained(self.conf.model.backbone)
-        elif conf.model.arch == "big_bird":
-            tokenizer = BigBirdTokenizer.from_pretrained(self.conf.model.backbone)
+        
+        tokenizer = AutoTokenizer.from_pretrained(self.conf.model.backbone, use_fast=False)
         
         aspects2id = self.packed_data["aspects2id"]
         for mode in ["train", "dev", "test"]:
@@ -118,11 +97,16 @@ class PersentDatamodule(pl.LightningDataModule):
             for x in raw_data:
                 doc = x["doc_text"] 
                 doc_aspect = x["doc_aspect"]
-                aspect_label = persent_label_map(x["doc_aspect_label"])
+                doc_entity = x["doc_entity"]
+                aspect_label = social_news_label_map(x["doc_aspect_label"])
 
                 tok_doc = tokenizer.tokenize(doc)
                 if doc_aspect and self.keep_auxiliary:
-                    tok_aspect = tokenizer.tokenize(doc_aspect)
+                    if self.keep_entity:
+                        doc_aux = doc_aspect + ', ' + doc_entity
+                    else:
+                        doc_aux = doc_aspect
+                    tok_aspect = tokenizer.tokenize(doc_aux)
                     trunc_tok_doc = truncate(
                         tok_doc,
                         max_len=conf.data.max_num_seq - 3 - len(tok_aspect),
@@ -174,9 +158,14 @@ class PersentDatamodule(pl.LightningDataModule):
             for x in raw_data:
                 doc = x["doc_text"]
                 doc_aspect = x["doc_aspect"]
-                aspect_label = persent_label_map(x["doc_aspect_label"])
+                doc_entity = x["doc_entity"]
+                aspect_label = social_news_label_map(x["doc_aspect_label"])
+                if self.keep_entity:
+                    doc_aux = doc_aspect + ', ' + doc_entity
+                else:
+                    doc_aux = doc_aspect
                 encoded_input = tokenizer.encode_plus(
-                    text=doc_aspect,
+                    text=doc_aux,
                     text_pair=doc,
                     max_length=conf.data.max_num_seq,
                     truncation="only_second",
@@ -197,12 +186,7 @@ class PersentDatamodule(pl.LightningDataModule):
     
     def sentence_process(self):
         conf = self.conf
-        if self.conf.model.backbone == "bert-base-uncased":
-            tokenizer = BertTokenizer.from_pretrained(self.conf.model.backbone)
-        elif self.conf.model.backbone == "google/bigbird-roberta-base":
-            tokenizer = BigBirdTokenizer.from_pretrained(self.conf.model.backbone)
-        elif self.conf.model.backbone == "roberta-base":
-            tokenizer = RobertaTokenizer.from_pretrained(self.conf.model.backbone)
+        tokenizer = AutoTokenizer.from_pretrained(self.conf.model.backbone, use_fast=False)
         
         aspects2id = self.packed_data["aspects2id"]
         for mode in ["train", "dev", "test"]:
@@ -212,7 +196,8 @@ class PersentDatamodule(pl.LightningDataModule):
             for x in raw_data:
                 sentences = eval(x["doc_sentences"])
                 doc_aspect = x["doc_aspect"]
-                aspect_label = persent_label_map(x["doc_aspect_label"])
+                doc_entity = x["doc_entity"]
+                aspect_label = social_news_label_map(x["doc_aspect_label"])
                 
                 sent_list = []
                 sent_ids_list = []
@@ -222,7 +207,11 @@ class PersentDatamodule(pl.LightningDataModule):
                 for sent_idx, sent in enumerate(sentences):
                     tok_sent = tokenizer.tokenize(sent)
                     if doc_aspect and self.keep_auxiliary:
-                        tok_aspect = tokenizer.tokenize(doc_aspect)
+                        if self.keep_entity:
+                            doc_aux = doc_aspect + ', ' + doc_entity
+                        else:
+                            doc_aux = doc_aspect
+                        tok_aspect = tokenizer.tokenize(doc_aux)
                         trunc_tok_sent = truncate(
                             tok_sent,
                             max_len=conf.data.max_num_token_per_sent - 3 - len(tok_aspect),
@@ -259,6 +248,8 @@ class PersentDatamodule(pl.LightningDataModule):
             self.packed_data[mode] = feature_list
         with open(self.file_path, "wb") as f:
             pickle.dump(self.packed_data, f)
+
+    
 
     def train_dataloader(self):
         collate_fn = build_collator(conf=self.conf)

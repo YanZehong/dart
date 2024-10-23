@@ -1,8 +1,0 @@
-arch: big_bird
-
-backbone: google/bigbird-roberta-base
-
-num_class: 2
-dropout: 0.1
-
-collator: doc_collator

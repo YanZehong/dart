@@ -1,8 +1,9 @@
 from .registry import register_datamodule
 import pytorch_lightning as pl
 import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 import csv
-from transformers import BertTokenizer, BigBirdTokenizer, RobertaTokenizer, LongformerTokenizer
+from transformers import BertTokenizer, BigBirdTokenizer, RobertaTokenizer, LongformerTokenizer, AutoTokenizer
 import torch
 from torch.utils.data import DataLoader
 from .components import build_collator
@@ -19,39 +20,15 @@ class TripAdvisorDatamodule(pl.LightningDataModule):
         super().__init__()
         self.conf = conf
         self.keep_auxiliary = True
-
-        if conf.model.arch in ["bert_truncation", "big_bird"]:
-            self.file_path = self.conf.root_dir + '/outputs/corpus_' + str(
-                self.conf.data.name) + '_' + str(conf.model.arch) + '_' + str(
-                    self.conf.data.max_num_seq) + '.pickle'
-            if not os.path.exists(self.file_path):
-                self.convert_data_to_features()
-                self.process()
-            else:
-                with open(self.file_path, 'rb') as f:
-                    self.packed_data = pickle.load(f)
-                
-        elif conf.model.arch in ["longformer"]:
-            self.file_path = self.conf.root_dir + '/outputs/corpus_' + str(
-                self.conf.data.name) + '_' + str(conf.model.arch) + '_' + str(
-                    self.conf.data.max_num_seq) + '.pickle'
-            if not os.path.exists(self.file_path):
-                self.convert_data_to_features()
-                self.process_for_roberta()
-            else:
-                with open(self.file_path, 'rb') as f:
-                    self.packed_data = pickle.load(f)
-
-        elif conf.model.arch in ["dart"]:
-            self.file_path = self.conf.root_dir + '/outputs/corpus_' + str(
-                self.conf.data.name) + '_' + str(self.conf.data.max_num_sent) + '_' + str(
-                    self.conf.data.max_num_token_per_sent) + '.pickle'
-            if not os.path.exists(self.file_path):
-                self.convert_data_to_features()
-                self.sentence_process()
-            else:
-                with open(self.file_path, 'rb') as f:
-                    self.packed_data = pickle.load(f)
+        self.file_path = self.conf.root_dir + '/outputs/corpus_' + str(
+            self.conf.data.name) + '_' + str(self.conf.data.max_num_sent) + '_' + str(
+                self.conf.data.max_num_token_per_sent) + '.pickle'
+        if not os.path.exists(self.file_path):
+            self.convert_data_to_features()
+            self.sentence_process()
+        else:
+            with open(self.file_path, 'rb') as f:
+                self.packed_data = pickle.load(f)
     
     def convert_data_to_features(self):
         conf = self.conf
@@ -94,10 +71,7 @@ class TripAdvisorDatamodule(pl.LightningDataModule):
     
     def process(self):
         conf = self.conf
-        if conf.model.arch == "bert_truncation":
-            tokenizer = BertTokenizer.from_pretrained(self.conf.model.backbone)
-        elif conf.model.arch == "big_bird":
-            tokenizer = BigBirdTokenizer.from_pretrained(self.conf.model.backbone)
+        tokenizer = AutoTokenizer.from_pretrained(self.conf.model.backbone)
         
         aspects2id = self.packed_data["aspects2id"]
         for mode in ["train", "dev", "test"]:
@@ -146,14 +120,7 @@ class TripAdvisorDatamodule(pl.LightningDataModule):
         separate your segments with the separation token tokenizer.sep_token (or </s>).
         '''
         conf = self.conf
-        if conf.model.arch == "longformer":
-            print("######## Use longformer tokenizer")
-            tokenizer = LongformerTokenizer.from_pretrained(
-                self.conf.model.backbone)
-        elif conf.model.arch == "roberta_truncation":
-            print("######## Use RoBERTa tokenizer")
-            tokenizer = RobertaTokenizer.from_pretrained(
-                self.conf.model.backbone)
+        tokenizer = AutoTokenizer.from_pretrained(self.conf.model.backbone)
 
         aspects2id = self.packed_data["aspects2id"]
         for mode in ["train", "dev", "test"]:
@@ -185,12 +152,7 @@ class TripAdvisorDatamodule(pl.LightningDataModule):
 
     def sentence_process(self):
         conf = self.conf
-        if self.conf.model.backbone == "bert-base-uncased":
-            tokenizer = BertTokenizer.from_pretrained(self.conf.model.backbone)
-        elif self.conf.model.backbone == "google/bigbird-roberta-base":
-            tokenizer = BigBirdTokenizer.from_pretrained(self.conf.model.backbone)
-        elif self.conf.model.backbone == "roberta-base":
-            tokenizer = RobertaTokenizer.from_pretrained(self.conf.model.backbone)
+        tokenizer = AutoTokenizer.from_pretrained(self.conf.model.backbone)
         
         aspects2id = self.packed_data["aspects2id"]
         for mode in ["train", "dev", "test"]:
@@ -335,9 +297,9 @@ class TripAdvisorDatamodule(pl.LightningDataModule):
         collate_fn = build_collator(conf=self.conf)
         loader = DataLoader(
             self.packed_data["test"],
-            batch_size=self.conf.test.batch_size, # 1
+            batch_size=self.conf.test.batch_size,
             collate_fn=collate_fn,
-            num_workers=self.conf.test.num_workers, # 0
-            prefetch_factor=self.conf.test.prefetch_factor, # 2
+            num_workers=self.conf.test.num_workers,
+            prefetch_factor=self.conf.test.prefetch_factor,
         )
         return loader
