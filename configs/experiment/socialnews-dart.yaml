@@ -9,7 +9,7 @@ defaults:
 
 train:
   num_epoch: 10
-  batch_size: 8
+  batch_size: 16
   num_workers: 8
   prefetch_factor: 4
 
@@ -22,7 +22,7 @@ train:
   clip_grad: 0.5
 
 dev:
-  batch_size: 8
+  batch_size: 16
   num_workers: 8
   prefetch_factor: 4
 

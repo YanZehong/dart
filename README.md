@@ -112,6 +112,22 @@ python eval.py gpu=1 data=DATA_NAME ckpt_path='/path/to/ckpt/name.ckpt'
 python eval.py ckpt_path='/path/to/ckpt/name.ckpt'
 ```
 
+#### Download Checkpoints
+You can find fine-tuned checkpoints [here](https://drive.google.com/drive/folders/1OAJw4dLMSe5ySM2QUy2lBtNPgFd74k1c?usp=share_link).  
+We recommend using the following checkpoints :  
+|  Data   |                                   Fine-tuned Checkpoint                                   |   Size   | Accuracy | 
+| :------- | :----------------------------------------------------------------------------------------- | :-------: |:----------------: |
+|trip_advisor | epoch=3-step=8694.ckpt | 1962MB | 86.36% |
+|beer_advocate | epoch=3-step=5936.ckpt | 1962MB | 88.13% |
+|social_news | epoch=4-step=840.ckpt | 1962MB | 83.81% |
+
+```bash
+# Optionally, you can download them using wget or gdown as
+# Next, unzip it to the directory `ckpt_path`
+pip install gdown
+gdown --folder https://drive.google.com/drive/folders/1OAJw4dLMSe5ySM2QUy2lBtNPgFd74k1c
+```
+
 > **Note**: If you get an error `mismatched input '=' expecting <EOF>`, use the escape character `\=` to fix this problem. Or you can specify the value of `ckpt_path` in [configs/cfg.yaml](configs/cfg.yaml). Consider visiting that [gdown page](https://github.com/wkentaro/gdown) for full instructions, since the source repo may have more up-to-date instructions.
 
 <details>

@@ -6,7 +6,7 @@ class AttentiveAggregation(nn.Module):
 
     def __init__(self, input_size) -> None:
         super().__init__()
-
+        
         self.hidden_map = nn.Sequential(nn.Linear(input_size, input_size),
                                         nn.Tanh())
 
@@ -17,6 +17,7 @@ class AttentiveAggregation(nn.Module):
         q: [bsz, hidden_size]
         Return: [bsz, hidden_size]
         """
+
         hidden_size = torch.tensor(q.shape[1], dtype=torch.float)
         attn_logit = torch.sum(self.hidden_map(embs) * q[:, None, :], dim=2)  # [bsz, num_seq]
         

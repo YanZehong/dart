@@ -39,7 +39,7 @@ class HierarchicalDART(nn.Module):
                 self.fixed_aspect_emb = pickle.load(f)
             self.aspect_emb_layer = nn.Embedding.from_pretrained(self.fixed_aspect_emb, freeze=False)
         else:
-            self.aspect_emb_layer = nn.Embedding(1,interact_encoder_conf.d_model)
+            self.aspect_emb_layer = nn.Embedding(1,interact_encoder_conf.d_model, freeze=False)
 
         self.pos_emb_layer = nn.Embedding(self.conf.data.max_num_sent+1,
                                           interact_encoder_conf.d_model,
@@ -105,17 +105,13 @@ class HierarchicalDART(nn.Module):
         """1st: Sentence Encoding Block"""
         flatten_input_ids = input_ids.reshape((bsz * num_sent, num_token))
         flatten_attention_mask = attention_mask.reshape((bsz * num_sent, num_token)) 
-        # flatten_attention_mask[:, 0] = True
+        
         flatten_attention_mask[:, 0] = 1.0
         flatten_token_type_ids = token_type_ids.reshape((bsz * num_sent, num_token)) 
         
-        if 't5' in self.conf.model.backbone:
-            sent_embs = self.sent_encoder(input_ids=flatten_input_ids,
-                            attention_mask=flatten_attention_mask).last_hidden_state 
-        else:
-            sent_embs = self.sent_encoder(input_ids=flatten_input_ids,
-                                attention_mask=flatten_attention_mask,
-                                token_type_ids=flatten_token_type_ids).last_hidden_state 
+        sent_embs = self.sent_encoder(input_ids=flatten_input_ids,
+                            attention_mask=flatten_attention_mask,
+                            token_type_ids=flatten_token_type_ids).last_hidden_state 
             
         cls_embs = sent_embs[:, 0, :]  
 
